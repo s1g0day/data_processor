@@ -42,22 +42,24 @@ processor.process_file('path_to_your_file.txt')
 # 输出
 
 数据源详情可以查看`demo.txt`, 项目会输出14个各类样式的文件
-```
-demo--All_Data_Quchong.txt                                # 去重后的所有数据。保留原格式
-demo--All_Domains_No_Schemes.txt                # 提取所有不带协议头的数据
-demo--All_Domains_Schemes.txt                        # 提取所有带协议头的数据
-demo--All_Err.txt                                                # 所有无法处理或数据源异常的数据
-demo--Domains_Chinese_Ascii.txt                        # 提取中文域名
-demo--Domains_Chinese_Ascii.txt                        # 中文域名转为asscii后的数据
-demo--Domains_No_Schemes.txt                        # 提取不带协议头的数据。域名数据
-demo--Domains_Root.txt                                        # 提取根域名。域名数据
-demo--Domains_Schemes.txt                                # 提取带协议头的数据。域名数据
-demo--IPs.txt                                                        # 提取排序去重后的IP数据。IP数据
-demo--IP_Domains_No_Schemes.txt                        # 提取不带协议头的数据。IP数据
-demo--IP_Domains_Schemes.txt                        # 提取带协议头的数据。IP数据
-demo--IP_Ports_Sorted_List.txt                        # 提取排序IP:PORT数据。IP数据，原意是整理fscan错乱的的IP:port数据
-demo--IP_Segment.txt                                        # 提取IP段。仅提取了C段
-```
+
+
+| 文件名                           | 描述                                                         |
+| -------------------------------- | ------------------------------------------------------------ |
+| demo--All_Data_Quchong.txt       | 去重后的所有数据。保留原格式                                 |
+| demo--All_Domains_No_Schemes.txt | 提取所有不带协议头的数据                                     |
+| demo--All_Domains_Schemes.txt    | 提取所有带协议头的数据                                       |
+| demo--All_Err.txt                | 所有无法处理或数据源异常的数据                               |
+| demo--Domains_Chinese_Ascii.txt  | 提取中文域名                                                 |
+| demo--Domains_Chinese_Ascii.txt  | 中文域名转为asscii后的数据                                   |
+| demo--Domains_No_Schemes.txt     | 提取不带协议头的数据。域名数据                               |
+| demo--Domains_Root.txt           | 提取根域名。域名数据                                         |
+| demo--Domains_Schemes.txt        | 提取带协议头的数据。域名数据                                 |
+| demo--IPs.txt                    | 提取排序去重后的IP数据。IP数据                               |
+| demo--IP_Domains_No_Schemes.txt  | 提取不带协议头的数据。IP数据                                 |
+| demo--IP_Domains_Schemes.txt     | 提取带协议头的数据。IP数据                                   |
+| demo--IP_Ports_Sorted_List.txt   | 提取排序IP:PORT数据。IP数据，原意是整理fscan错乱的的IP:port数据 |
+| demo--IP_Segment.txt             | 提取IP段。仅提取了C段                                        |
 
 # 贡献与支持
 
