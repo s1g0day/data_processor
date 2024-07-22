@@ -1,8 +1,8 @@
 '''
 Author     : S1g0day
-Version    : 0.3.5
+Version    : 0.3.6
 Creat time : 2024/2/10 18:00
-Modification time: 2024/7/21 12:00
+Modification time: 2024/7/22 16:00
 Introduce  : 域名数据处理
 '''
 
