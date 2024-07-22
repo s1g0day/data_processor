@@ -12,6 +12,8 @@
 192.168.1.1001
 1192.168.1.100
 
+<>
+12313
 example.com
 A.example.com
 example.com:808
