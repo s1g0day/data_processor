@@ -72,12 +72,15 @@ class DomainIPProcessor:
                         if "://" in j:
                             Schemes_IP_Domains.append(j)
                         else:
-                            NO_Schemes_IP_Domains.append(j)  
+                            NO_Schemes_IP_Domains.append(j)
+        # 提取出IP:PORT
         for IP_PORT in NO_Schemes_IP_Domains:
-            # 提取出IP:PORT
-            IP_PORT = IP_PORT.split("/")[0]
-            if IP_PORT and IP_PORT not in ip_ports:
-                ip_ports.append(IP_PORT)
+            pattern = r'(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}):(\d+)'
+            match = re.search(pattern, IP_PORT)
+            if match:
+                IP_PORT = f"{match.group(1)}:{match.group(2)}"
+                if IP_PORT and IP_PORT not in ip_ports:
+                    ip_ports.append(IP_PORT)
         IP_Ports_Sorted_List = sorted(ip_ports, key=self.parse_ip_port)
         return ip_domains, Schemes_IP_Domains, NO_Schemes_IP_Domains, IP_Ports_Sorted_List
 
@@ -105,16 +108,16 @@ class DomainIPProcessor:
 
         sorted_ips = self.sort_IPs(list(pure_ips))
         sorted_segments = sorted(list(ip_segments))
-        return sorted_ips, ips_err, sorted_segments
+        return sorted_ips, sorted_segments, ips_err
         
-    def handle_domain_valid(self, domain_valid):
+    def handle_Domain_Valid(self, Domain_Valid):
         '''
-        处理 domain_valid 数据
+        处理 Domain_Valid 数据
         '''
         Root_Domains = []
         Schemes_Domains = []
         NO_Schemes_Domains= []
-        for url in domain_valid:
+        for url in Domain_Valid:
             # 提取根域名
             extracted = tldextract.extract(url)
             root_domain = extracted.domain + '.' + extracted.suffix
@@ -130,10 +133,11 @@ class DomainIPProcessor:
     # 区分IP和域名
     def classify_urls(self, urls):
         IP_valid = []
-        domain_valid = []
+        Domain_Valid = []
         Root_Domains = []
+        Chinese_Domain = []
         Ascii_Domain = []
-        IP_And_Domain_Urls = []
+        Url_Err = []
 
         ip_pattern = re.compile(r'(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)')
         domain_pattern = re.compile(r'([a-zA-Z0-9.-]+?\.[a-zA-Z]{2,6})')
@@ -142,23 +146,24 @@ class DomainIPProcessor:
             ip_match = ip_pattern.search(url)
             # 检查是否包含域名
             domain_match = domain_pattern.search(url)
-
             if ip_match and domain_match:
-                IP_And_Domain_Urls.append(url)
+                Url_Err.append(url)
             elif ip_match:
                 IP_valid.append(url)
             elif domain_match:
-                # 判断是否是中文域名
-                if self.is_chinese_domain(domain_match.group(0)):
-                    # 转换为 ASCII 格式
-                    domain_ascii = self.convert_to_ascii(domain_match.group(0))
-                    if domain_ascii:
-                        ascii_domain.append(domain_ascii)
-                else:
-                    domain_valid.append(url)
+                Domain_Valid.append(url)
+            # 判断是否是中文域名
+            elif self.is_chinese_domain(url):
+                # 转换为 ASCII 格式
+                domain_ascii = self.convert_to_ascii(url)
+                if domain_ascii:
+                    Chinese_Domain.append(url)
+                    Ascii_Domain.append(domain_ascii)
+            else:
+                Url_Err.append(url)
 
-        Root_Domains, Schemes_Domains, NO_Schemes_Domains= self.handle_domain_valid(domain_valid)
-        return IP_valid, domain_valid, Ascii_Domain, Root_Domains, Schemes_Domains, NO_Schemes_Domains, IP_And_Domain_Urls
+        Root_Domains, Schemes_Domains, NO_Schemes_Domains= self.handle_Domain_Valid(Domain_Valid)
+        return IP_valid, Domain_Valid, Chinese_Domain, Ascii_Domain, Root_Domains, Schemes_Domains, NO_Schemes_Domains, Url_Err
 
     # url去重
     def deduplicate_urls(self, file_name):
@@ -190,8 +195,8 @@ class DomainIPProcessor:
                     fs.write(i + '\n')
 
     def save_and_print_results(self, files, Root_Domains, Schemes_Domains, NO_Schemes_Domains, IPs, IP_Segment, 
-                               Schemes_IP_Domains, NO_Schemes_IP_Domains, IP_Ports_Sorted_List, Ascii_Domain, 
-                               All_Schemes_Domains, All_No_Schemes_Domains, All_Data, All_Err):
+                               Schemes_IP_Domains, NO_Schemes_IP_Domains, IP_Ports_Sorted_List, Chinese_Domain, 
+                               Ascii_Domain, All_Schemes_Domains, All_No_Schemes_Domains, All_Data, All_Err):
 
         # 生成文件名
         str(time.time()).split(".")[0]
@@ -211,7 +216,8 @@ class DomainIPProcessor:
             'Domains_Root': Root_Domains,
             'Domains_Schemes': Schemes_Domains,
             'Domains_No_Schemes': NO_Schemes_Domains,
-            'Domains_Ascii': Ascii_Domain,
+            'Domains_Chinese': Chinese_Domain,
+            'Domains_Chinese_Ascii': Ascii_Domain,
             'IPs': IPs,
             'IP_Segment': IP_Segment,
             'IP_Domains_Schemes': Schemes_IP_Domains,
@@ -236,21 +242,21 @@ class DomainIPProcessor:
         texts = self.deduplicate_urls(files)
 
         # 提取域名和IP
-        IP_valid, domain_valid, Ascii_Domain, Root_Domains, Schemes_Domains, NO_Schemes_Domains, IP_And_Domain_Urls= self.classify_urls(texts)
+        IP_valid, Domain_Valid, Chinese_Domain, Ascii_Domain, Root_Domains, Schemes_Domains, NO_Schemes_Domains, Url_Err = self.classify_urls(texts)
         
         # 提取纯粹IP和IP段, 并排序
-        IPs, IPs_Err, IP_Segment = self.process_ips(IP_valid)
+        IPs, IP_Segment, IPs_Err = self.process_ips(IP_valid)
         # 处理IP url
         ip_domains, Schemes_IP_Domains, NO_Schemes_IP_Domains, IP_Ports_Sorted_List = self.ip_url_output(IPs, IP_valid)
         #合并
         All_Schemes_Domains = Schemes_Domains + Schemes_IP_Domains
         All_No_Schemes_Domains = NO_Schemes_Domains+ NO_Schemes_IP_Domains
-        All_Err = IP_And_Domain_Urls + IPs_Err
-        All_Data = domain_valid + ip_domains
+        All_Err = Url_Err + IPs_Err
+        All_Data = Domain_Valid + ip_domains
         # 调用函数并传入所需参数
         self.save_and_print_results(files, Root_Domains, Schemes_Domains, NO_Schemes_Domains, IPs, IP_Segment, 
-                                    Schemes_IP_Domains, NO_Schemes_IP_Domains, IP_Ports_Sorted_List, Ascii_Domain, 
-                                    All_Schemes_Domains, All_No_Schemes_Domains, All_Data, All_Err)
+                                    Schemes_IP_Domains, NO_Schemes_IP_Domains, IP_Ports_Sorted_List, Chinese_Domain, 
+                                    Ascii_Domain, All_Schemes_Domains, All_No_Schemes_Domains, All_Data, All_Err)
 
 if __name__ == '__main__':
 
