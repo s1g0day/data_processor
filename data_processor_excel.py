@@ -2,8 +2,8 @@
 Author     : S1g0day
 Version    : 0.3.7
 Creat time : 2024/2/10 18:00
-Modification time: 2024/7/24 12:00
-Introduce  : 域名数据处理
+Modification time: 2024/7/24 10:00
+Introduce  : 域名数据处理，结果导出到excel
 '''
 
 import re
