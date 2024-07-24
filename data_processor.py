@@ -3,7 +3,7 @@ Author     : S1g0day
 Version    : 0.3.6
 Creat time : 2024/2/10 18:00
 Modification time: 2024/7/22 16:00
-Introduce  : 域名数据处理
+Introduce  : 域名数据处理, 分类导出到各自文件
 '''
 
 import re
